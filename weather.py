@@ -36,6 +36,7 @@ def get_weather_api(location, date):
     else:
         raise InvalidUsage(response.text, status_code=response.status_code)
 
+#
 
 @app.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
@@ -58,27 +59,27 @@ def joke_endpoint():
     location = json.get("location")
     requester_name = json.get("requester_name")
 
-    if json_data.get("token") is None:
+    if json.get("token") is None:
         raise InvalidUsage("token is required", status_code=400)
 
-    token = json_data.get("token")
+    token = json.get("token")
 
     if token != API_TOKEN:
         raise InvalidUsage("wrong API token", status_code=403)
 
-    # exclude = ""
-    # if json_data.get("exclude"):
-    #     exclude = json_data.get("exclude")
 
     data = get_weather_api(location, date)
 
     result = {
         "datetime": datetime,
         "name": requester_name,
+        "location": location,
+        "date": date,
+        "weather": {"temp" : ((data["temp"] -32)*(5/9)),
+                    "wind_kph":data["windspeed"],
+                    "pressure_mb":data["pressure"],
+                    "humidity":data["humidity"],
+                    "sunset_time":data["sunset"]}
     }
 
     return result
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
